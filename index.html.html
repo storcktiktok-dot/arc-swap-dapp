@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ARC Swap – storcktiktok</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<style>
+/* -------------------------------------------------
+   Arc Network Professional Theme
+------------------------------------------------- */
+:root {
+  --bg1: #071425;
+  --bg2: #030b16;
+  --card: #0b162b;
+  --glass: rgba(255,255,255,0.04);
+  --input: #102544;
+  --accent1: #0ea5e9;   /* ciano brilhante */
+  --accent2: #0284c7;   /* azul arc */
+  --accent-glow: rgba(14,165,233,0.45);
+  --text: #e2e8f0;
+  --soft-text: #94a3b8;
+  --border: rgba(255,255,255,0.08);
+  --radius: 14px;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+/* -------------------------------------------------
+   Base
+------------------------------------------------- */
+body {
+  margin: 0;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+/* -------------------------------------------------
+   Card Container
+------------------------------------------------- */
+.card {
+  width: 100%;
+  max-width: 480px;
+  padding: 30px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.45);
+}
+
+/* -------------------------------------------------
+   Titles
+------------------------------------------------- */
+h1 {
+  text-align: center;
+  color: var(--accent1);
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: 0.4px;
+}
+.tag {
+  text-align: center;
+  color: var(--soft-text);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+/* -------------------------------------------------
+   Labels & Inputs
+------------------------------------------------- */
+label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 15px;
+  display: block;
+}
+select, input {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  background: var(--input);
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+  font-size: 15px;
+  transition: border 0.2s;
+}
+select:hover, input:hover {
+  border: 1px solid var(--accent1);
+}
+
+/* MAX button inside amount input */
+.amount-wrapper {
+  position: relative;
+}
+.max-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--accent1);
+  color: #000;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* -------------------------------------------------
+   Buttons
+------------------------------------------------- */
+.btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  transition: transform .15s, box-shadow .2s;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* Secondary Button */
+.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--soft-text);
+}
+.secondary:hover {
+  border-color: var(--accent1);
+  color: #fff;
+}
+
+/* -------------------------------------------------
+   Footer info
+------------------------------------------------- */
+.fee {
+  text-align: center;
+  font-size: 13px;
+  color: var(--soft-text);
+  margin-top: 18px;
+}
+.status {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 14px;
+  color: var(--accent1);
+}
+footer {
+  text-align: center;
+  font-size: 11px;
+  margin-top: 22px;
+  color: var(--soft-text);
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+
+  <h1>ARC Swap – storcktiktok</h1>
+  <div class="tag">Testnet Interface</div>
+
+  <button class="btn" id="connectBtn">Connect Wallet</button>
+
+  <label>From</label>
+  <select id="from"></select>
+
+  <label>To</label>
+  <select id="to"></select>
+
+  <label>Amount</label>
+  <div class="amount-wrapper">
+    <input type="number" id="amount" placeholder="0.00">
+    <div class="max-btn" id="maxBtn">MAX</div>
+  </div>
+
+  <button class="btn" id="swapBtn">Swap</button>
+  <button class="btn secondary" onclick="location.reload()">Refresh</button>
+
+  <div class="fee">Network Fee: 1 USDC</div>
+  <div class="status" id="status"></div>
+  <footer>ARC Network Testnet</footer>
+
+</div>
+
+<script>
+const TOKENS = {
+  USDC:"0x3600000000000000000000000000000000000000",
+  EURC:"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a",
+  USDT:"0x175CdB1D338945f0D851A741ccF787D343E57952",
+  SRAC:"0x49cd69442dB073E7b94B0124e316AB7C68b95988",
+  RACS:"0x6E63e2cABECCe5c3A1c37b79A958a9542076A1e3",
+  SACS:"0x63F856fBAB3535174bFaFD6EFd720C634d6FD458",
+  KITTY:"0xe470A3Fb08345FD4a84c1b56Bd35bA7Be6297C3d",
+  DOGG:"0x832Fa4331050045F911bD6d59EAD144A04B965cB"
+};
+
+const ABI = ["function transfer(address,uint256) returns(bool)"];
+const VAULT = "0x000000000000000000000000000000000000dEaD";
+const FEE = ethers.utils.parseUnits("1", 6);
+
+const from = document.getElementById("from");
+const to = document.getElementById("to");
+const status = document.getElementById("status");
+
+/* Load tokens */
+Object.keys(TOKENS).forEach(k => {
+  let o = document.createElement("option");
+  o.value = TOKENS[k];
+  o.textContent = k;
+  from.appendChild(o.cloneNode(true));
+  to.appendChild(o);
+});
+
+let provider, signer;
+
+/* Connect Wallet */
+document.getElementById("connectBtn").onclick = async () => {
+  await ethereum.request({ method:"eth_requestAccounts" });
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  status.innerText = "Wallet connected ✓";
+};
+
+/* MAX button */
+document.getElementById("maxBtn").onclick = () => {
+  document.getElementById("amount").value = 100; // ajustar depois se quiser saldo real
+};
+
+/* Swap */
+document.getElementById("swapBtn").onclick = async () => {
+  if (!signer) return alert("Connect wallet first");
+  if (from.value === to.value) return alert("Choose different tokens");
+
+  const amount = document.getElementById("amount").value;
+  if (!amount || amount <= 0) return alert("Invalid amount");
+
+  let token = new ethers.Contract(from.value, ABI, signer);
+  let usdc = new ethers.Contract(TOKENS.USDC, ABI, signer);
+
+  status.innerText = "Processing…";
+
+  await usdc.transfer(VAULT, FEE);
+  await token.transfer(VAULT, ethers.utils.parseUnits(amount, 18));
+
+  status.innerText = "Swap completed ✔ (Testnet Simulation)";
+};
+</script>
+
+</body>
+</html>
+
+
+
+
+
